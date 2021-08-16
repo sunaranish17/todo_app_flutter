@@ -30,19 +30,22 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Expanded(
-                    child: ListView(
-                      children: [
-                        TaskCardWidget(
-                            title: "Get Started",
-                            desc:
-                                "Hello User! Welcome to TODO app, this is a default task that you can edit or delete to start using the app."),
-                        TaskCardWidget(),
-                        TaskCardWidget(),
-                        TaskCardWidget(),
-                        TaskCardWidget(),
-                        TaskCardWidget(),
-                        TaskCardWidget(),
-                      ],
+                    child: ScrollConfiguration(
+                      behavior: NoGlowBehaviour(),
+                      child: ListView(
+                        children: [
+                          TaskCardWidget(
+                              title: "Get Started",
+                              desc:
+                                  "Hello User! Welcome to TODO app, this is a default task that you can edit or delete to start using the app."),
+                          TaskCardWidget(),
+                          TaskCardWidget(),
+                          TaskCardWidget(),
+                          TaskCardWidget(),
+                          TaskCardWidget(),
+                          TaskCardWidget(),
+                        ],
+                      ),
                     ),
                   )
                 ],
@@ -63,7 +66,12 @@ class _HomePageState extends State<HomePage> {
                     width: 60.0,
                     height: 60.0,
                     decoration: BoxDecoration(
-                      color: Color(0xFF7349FE),
+                      // color: Color(0xFF7349FE),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF7349FE), Color(0xFF7643FDB)],
+                        begin: Alignment(0.0, -1.0),
+                        end: Alignment(0.0, 1.0),
+                      ),
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                     child: Image(
