@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:what_todo/widgets.dart';
 
 class TaskPage extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class _TaskPageState extends State<TaskPage> {
       body: SafeArea(
         child: Container(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.only(
@@ -48,12 +50,26 @@ class _TaskPageState extends State<TaskPage> {
                   ],
                 ),
               ),
-              TextField(
-                decoration: InputDecoration(
-                    hintText: "Enter Descriptio for the task....",
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 24.0)),
-              )
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: 12.0,
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                      hintText: "Enter Descriptio for the task....",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 24.0)),
+                ),
+              ),
+              ToDoWidget(
+                text: "ToDo Item",
+                isDone: false,
+              ),
+              ToDoWidget(
+                isDone: true,
+              ),
+              ToDoWidget(isDone: true),
+              ToDoWidget(isDone: true),
             ],
           ),
         ),
