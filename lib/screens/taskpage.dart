@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:what_todo/database_helper.dart';
 import 'package:what_todo/models/task.dart';
-import 'package:what_todo/widgets.dart';
+import 'package:what_todo/models/todo.dart';
 
 class TaskPage extends StatefulWidget {
   final Task? task;
@@ -123,7 +123,23 @@ class _TaskPageState extends State<TaskPage> {
                           ),
                           Expanded(
                             child: TextField(
-                              onSubmitted: (value) {},
+                              onSubmitted: (value) async {
+                                if (value != "") {
+                                  //Check of task is null
+                                  if (widget.task != null) {
+                                    DatabaseHelper _dbHelper = DatabaseHelper();
+
+                                    ToDo newToDo = ToDo(
+                                      title: value,
+                                      isDone: 0,
+                                      taskId: (widget.task as dynamic).id,
+                                    );
+
+                                    await _dbHelper.insertToDo(newToDo);
+                                    print("Creating new ToDo");
+                                  }
+                                }
+                              },
                               decoration: InputDecoration(
                                 hintText: "Enter ToDo itme...",
                                 border: InputBorder.none,
