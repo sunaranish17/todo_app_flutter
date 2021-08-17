@@ -4,11 +4,24 @@ import 'package:what_todo/models/task.dart';
 import 'package:what_todo/widgets.dart';
 
 class TaskPage extends StatefulWidget {
+  final Task? task;
+
+  TaskPage({this.task});
   @override
   _TaskPageState createState() => _TaskPageState();
 }
 
 class _TaskPageState extends State<TaskPage> {
+  String? _taskTitle = "";
+
+  @override
+  void initState() {
+    if (widget.task != null) {
+      _taskTitle = (widget.task as dynamic).title;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,18 +54,23 @@ class _TaskPageState extends State<TaskPage> {
                         Expanded(
                           child: TextField(
                             onSubmitted: (value) async {
-                              print("field value: $value");
-
+                              //Check if field is empty
                               if (value != "") {
-                                DatabaseHelper _dbHelper = DatabaseHelper();
+                                //Check of task is null
+                                if (widget.task == null) {
+                                  DatabaseHelper _dbHelper = DatabaseHelper();
 
-                                Task newTask = Task(title: value);
+                                  Task newTask = Task(title: value);
 
-                                await _dbHelper.insertTask(newTask);
-
-                                print("New Task has been added");
+                                  await _dbHelper.insertTask(newTask);
+                                  print("New Task is added");
+                                } else {
+                                  print("Update the exisiting task");
+                                }
                               }
                             },
+                            controller: TextEditingController()
+                              ..text = _taskTitle.toString(),
                             decoration: InputDecoration(
                               hintText: "Enter Task Title",
                               border: InputBorder.none,
@@ -79,29 +97,50 @@ class _TaskPageState extends State<TaskPage> {
                               EdgeInsets.symmetric(horizontal: 24.0)),
                     ),
                   ),
-                  ToDoWidget(
-                    text: "ToDo Item",
-                    isDone: false,
-                  ),
-                  ToDoWidget(
-                    isDone: true,
-                  ),
-                  ToDoWidget(isDone: true),
-                  ToDoWidget(isDone: true),
+                  Column(children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20.0,
+                            height: 20.0,
+                            margin: EdgeInsets.only(
+                              right: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(6.0),
+                                border: Border.all(
+                                  color: Color(0xFF86829D),
+                                  width: 1.5,
+                                )),
+                            child: Image(
+                              image: AssetImage('assets/images/check_icon.png'),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              onSubmitted: (value) {},
+                              decoration: InputDecoration(
+                                hintText: "Enter ToDo itme...",
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ])
                 ],
               ),
               Positioned(
                 bottom: 24.0,
                 right: 24.0,
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TaskPage(),
-                      ),
-                    );
-                  },
+                  onTap: () {},
                   child: Container(
                     width: 60.0,
                     height: 60.0,

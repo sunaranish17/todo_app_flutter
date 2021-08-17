@@ -6,11 +6,15 @@ class DatabaseHelper {
   Future<Database> database() async {
     return openDatabase(
       join(await getDatabasesPath(), 'todo_db'),
-      onCreate: (db, version) {
+      onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
-        return db.execute(
+        await db.execute(
           'CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, description TEXT)',
         );
+        await db.execute(
+          'CREATE TABLE todo(id INTEGER PRIMARY KEY, title TEXT, isDone INTEGER)',
+        );
+        // return db;
       },
       version: 1,
     );
