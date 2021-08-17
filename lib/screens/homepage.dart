@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:what_todo/database_helper.dart';
 import 'package:what_todo/screens/taskpage.dart';
 import 'package:what_todo/widgets.dart';
 
@@ -8,6 +9,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  DatabaseHelper _dbHelper = DatabaseHelper();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,22 +32,23 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Expanded(
-                    child: ScrollConfiguration(
-                      behavior: NoGlowBehaviour(),
-                      child: ListView(
-                        children: [
-                          TaskCardWidget(
-                              title: "Get Started",
-                              desc:
-                                  "Hello User! Welcome to TODO app, this is a default task that you can edit or delete to start using the app."),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                          TaskCardWidget(),
-                        ],
-                      ),
+                    child: FutureBuilder(
+                      initialData: [],
+                      future: _dbHelper.getTask(),
+                      builder: (context, snapshot) {
+                        return ScrollConfiguration(
+                          behavior: NoGlowBehaviour(),
+                          child: ListView.builder(
+                            itemCount: ((snapshot.data as dynamic).length),
+                            itemBuilder: (context, index) {
+                              return TaskCardWidget(
+                                title:
+                                    ((snapshot.data as dynamic)[index].title),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
                   )
                 ],
