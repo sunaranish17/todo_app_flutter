@@ -18,13 +18,37 @@ class _TaskPageState extends State<TaskPage> {
   int _taskId = 0;
   String? _taskTitle = "";
 
+  late FocusNode _titleFocus;
+  late FocusNode _descriptionFocus;
+  late FocusNode _todoFocus;
+
+  bool _contentVisible = false;
+
   @override
   void initState() {
     if (widget.task != null) {
+      //Set visibilty true
+      _contentVisible = true;
+
       _taskTitle = (widget.task as dynamic).title;
       _taskId = (widget.task as dynamic).id;
     }
+
+    _titleFocus = FocusNode();
+    _descriptionFocus = FocusNode();
+    _todoFocus = FocusNode();
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _titleFocus.dispose();
+    _descriptionFocus.dispose();
+    _todoFocus.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -58,6 +82,7 @@ class _TaskPageState extends State<TaskPage> {
                         ),
                         Expanded(
                           child: TextField(
+                            focusNode: _titleFocus,
                             onSubmitted: (value) async {
                               //Check if field is empty
                               if (value != "") {
@@ -65,11 +90,18 @@ class _TaskPageState extends State<TaskPage> {
                                 if (widget.task == null) {
                                   Task newTask = Task(title: value);
 
-                                  await _dbHelper.insertTask(newTask);
+                                  _taskId = await _dbHelper.insertTask(newTask);
                                   print("New Task is added");
+                                  print("TaskID $_taskId");
+                                  setState(() {
+                                    _contentVisible = true;
+                                    _taskTitle = value;
+                                  });
                                 } else {
                                   print("Update the exisiting task");
                                 }
+
+                                _descriptionFocus.requestFocus();
                               }
                             },
                             controller: TextEditingController()
@@ -88,16 +120,23 @@ class _TaskPageState extends State<TaskPage> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      bottom: 12.0,
-                    ),
-                    child: TextField(
-                      decoration: InputDecoration(
-                          hintText: "Enter Description for the task....",
-                          border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 24.0)),
+                  Visibility(
+                    visible: _contentVisible,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: 12.0,
+                      ),
+                      child: TextField(
+                        focusNode: _descriptionFocus,
+                        onSubmitted: (value) {
+                          _todoFocus.requestFocus();
+                        },
+                        decoration: InputDecoration(
+                            hintText: "Enter Description for the task....",
+                            border: InputBorder.none,
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 24.0)),
+                      ),
                     ),
                   ),
                   // Expanded(
@@ -107,100 +146,110 @@ class _TaskPageState extends State<TaskPage> {
                   //     ],
                   //   ),
                   // ),
-                  FutureBuilder(
-                    initialData: [],
-                    future: _dbHelper.getToDo(_taskId),
-                    builder: (context, snapshot) {
-                      return Expanded(
-                        child: ListView.builder(
-                          itemCount: (snapshot.data as dynamic).length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                //Switch the ToDo status
-                              },
-                              child: ToDoWidget(
-                                isDone:
-                                    (snapshot.data as dynamic)[index].isDone ==
-                                            0
-                                        ? false
-                                        : true,
-                                text: (snapshot.data as dynamic)[index].title,
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20.0,
-                          height: 20.0,
-                          margin: EdgeInsets.only(
-                            right: 12.0,
-                          ),
-                          decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(6.0),
-                              border: Border.all(
-                                color: Color(0xFF86829D),
-                                width: 1.5,
-                              )),
-                          child: Image(
-                            image: AssetImage('assets/images/check_icon.png'),
-                          ),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            onSubmitted: (value) async {
-                              if (value != "") {
-                                //Check of task is null
-                                if (widget.task != null) {
-                                  DatabaseHelper _dbHelper = DatabaseHelper();
-
-                                  ToDo newToDo = ToDo(
-                                    title: value,
-                                    isDone: 0,
-                                    taskId: (widget.task as dynamic).id,
-                                  );
-
-                                  await _dbHelper.insertToDo(newToDo);
-                                  print("Creating new ToDo");
-                                  setState(() {});
-                                }
-                              }
+                  Visibility(
+                    visible: _contentVisible,
+                    child: FutureBuilder(
+                      initialData: [],
+                      future: _dbHelper.getToDo(_taskId),
+                      builder: (context, snapshot) {
+                        return Expanded(
+                          child: ListView.builder(
+                            itemCount: (snapshot.data as dynamic).length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  //Switch the ToDo status
+                                },
+                                child: ToDoWidget(
+                                  isDone: (snapshot.data as dynamic)[index]
+                                              .isDone ==
+                                          0
+                                      ? false
+                                      : true,
+                                  text: (snapshot.data as dynamic)[index].title,
+                                ),
+                              );
                             },
-                            decoration: InputDecoration(
-                              hintText: "Enter ToDo item...",
-                              border: InputBorder.none,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Visibility(
+                    visible: _contentVisible,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20.0,
+                            height: 20.0,
+                            margin: EdgeInsets.only(
+                              right: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(6.0),
+                                border: Border.all(
+                                  color: Color(0xFF86829D),
+                                  width: 1.5,
+                                )),
+                            child: Image(
+                              image: AssetImage('assets/images/check_icon.png'),
                             ),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: TextField(
+                              focusNode: _todoFocus,
+                              onSubmitted: (value) async {
+                                if (value != "") {
+                                  //Check of task is null
+                                  if (widget.task != null) {
+                                    DatabaseHelper _dbHelper = DatabaseHelper();
+
+                                    ToDo newToDo = ToDo(
+                                      title: value,
+                                      isDone: 0,
+                                      taskId: (widget.task as dynamic).id,
+                                    );
+
+                                    await _dbHelper.insertToDo(newToDo);
+                                    print("Creating new ToDo");
+                                    setState(() {});
+                                  }
+                                }
+                              },
+                              decoration: InputDecoration(
+                                hintText: "Enter ToDo item...",
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 ],
               ),
-              Positioned(
-                bottom: 24.0,
-                right: 24.0,
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 60.0,
-                    height: 60.0,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFE3577),
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Image(
-                      image: AssetImage('assets/images/delete_icon.png'),
+              Visibility(
+                visible: _contentVisible,
+                child: Positioned(
+                  bottom: 24.0,
+                  right: 24.0,
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      width: 60.0,
+                      height: 60.0,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFE3577),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Image(
+                        image: AssetImage('assets/images/delete_icon.png'),
+                      ),
                     ),
                   ),
                 ),
