@@ -50,11 +50,15 @@ class _HomePageState extends State<HomePage> {
                                         task: (snapshot.data as dynamic)[index],
                                       ),
                                     ),
-                                  );
+                                  ).then((value) {
+                                    setState(() {});
+                                  });
                                 },
                                 child: TaskCardWidget(
                                   title:
                                       ((snapshot.data as dynamic)[index].title),
+                                  desc: ((snapshot.data as dynamic)[index]
+                                      .description),
                                 ),
                               );
                             },

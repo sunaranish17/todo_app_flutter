@@ -99,6 +99,9 @@ class _TaskPageState extends State<TaskPage> {
                                   });
                                 } else {
                                   print("Update the exisiting task");
+                                  await _dbHelper.updateTaskTitle(
+                                      _taskId, value);
+                                  print("Task Updated");
                                 }
 
                                 _descriptionFocus.requestFocus();
@@ -130,6 +133,12 @@ class _TaskPageState extends State<TaskPage> {
                         focusNode: _descriptionFocus,
                         onSubmitted: (value) {
                           _todoFocus.requestFocus();
+                          if (value != "") {
+                            if (_taskId != 0) {
+                              _dbHelper.updateTaskDescription(_taskId, value);
+                              print("Description updated");
+                            }
+                          }
                         },
                         decoration: InputDecoration(
                             hintText: "Enter Description for the task....",
