@@ -132,14 +132,17 @@ class _TaskPageState extends State<TaskPage> {
                       ),
                       child: TextField(
                         focusNode: _descriptionFocus,
-                        onSubmitted: (value) {
+                        onSubmitted: (value) async {
                           _todoFocus.requestFocus();
                           if (value != "") {
                             if (_taskId != 0) {
-                              _dbHelper.updateTaskDescription(_taskId, value);
+                              await _dbHelper.updateTaskDescription(
+                                  _taskId, value);
+                              _taskDescription = value;
                               print("Description updated");
                             }
                           }
+                          _todoFocus.requestFocus();
                         },
                         controller: TextEditingController()
                           ..text = _taskDescription.toString(),
@@ -232,19 +235,21 @@ class _TaskPageState extends State<TaskPage> {
                               onSubmitted: (value) async {
                                 if (value != "") {
                                   //Check of task is null
-                                  if (widget.task != null) {
+                                  if (_taskId != 0) {
                                     DatabaseHelper _dbHelper = DatabaseHelper();
 
                                     ToDo newToDo = ToDo(
                                       title: value,
                                       isDone: 0,
-                                      taskId: (widget.task as dynamic).id,
+                                      taskId: _taskId,
                                     );
 
                                     await _dbHelper.insertToDo(newToDo);
                                     print("Creating new ToDo");
                                     setState(() {});
                                     _todoFocus.requestFocus();
+                                  } else {
+                                    print("Task doesn't exist");
                                   }
                                 }
                               },
@@ -266,7 +271,12 @@ class _TaskPageState extends State<TaskPage> {
                   bottom: 24.0,
                   right: 24.0,
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () async {
+                      if (_taskId != 0) {
+                        await _dbHelper.deleteTask(_taskId);
+                        Navigator.pop(context);
+                      }
+                    },
                     child: Container(
                       width: 60.0,
                       height: 60.0,
