@@ -81,4 +81,9 @@ class DatabaseHelper {
           isDone: toDoMap[index]['isDone']),
     );
   }
+
+  Future<void> updateToDoStatus(int id, int isDone) async {
+    Database _db = await database();
+    await _db.rawUpdate("UPDATE todo SET isDone = '$isDone' WHERE id = '$id'");
+  }
 }

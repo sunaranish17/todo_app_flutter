@@ -17,6 +17,7 @@ class _TaskPageState extends State<TaskPage> {
 
   int _taskId = 0;
   String? _taskTitle = "";
+  String? _taskDescription = "";
 
   late FocusNode _titleFocus;
   late FocusNode _descriptionFocus;
@@ -31,6 +32,7 @@ class _TaskPageState extends State<TaskPage> {
       _contentVisible = true;
 
       _taskTitle = (widget.task as dynamic).title;
+      _taskDescription = (widget.task as dynamic).description;
       _taskId = (widget.task as dynamic).id;
     }
 
@@ -43,7 +45,6 @@ class _TaskPageState extends State<TaskPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _titleFocus.dispose();
     _descriptionFocus.dispose();
     _todoFocus.dispose();
@@ -140,6 +141,8 @@ class _TaskPageState extends State<TaskPage> {
                             }
                           }
                         },
+                        controller: TextEditingController()
+                          ..text = _taskDescription.toString(),
                         decoration: InputDecoration(
                             hintText: "Enter Description for the task....",
                             border: InputBorder.none,
@@ -166,8 +169,21 @@ class _TaskPageState extends State<TaskPage> {
                             itemCount: (snapshot.data as dynamic).length,
                             itemBuilder: (context, index) {
                               return GestureDetector(
-                                onTap: () {
+                                onTap: () async {
                                   //Switch the ToDo status
+                                  if ((snapshot.data as dynamic)[index]
+                                          .isDone ==
+                                      0) {
+                                    await _dbHelper.updateToDoStatus(
+                                        (snapshot.data as dynamic)[index].id,
+                                        1);
+                                  } else {
+                                    await _dbHelper.updateToDoStatus(
+                                        (snapshot.data as dynamic)[index].id,
+                                        0);
+                                  }
+
+                                  setState(() {});
                                 },
                                 child: ToDoWidget(
                                   isDone: (snapshot.data as dynamic)[index]
@@ -212,6 +228,7 @@ class _TaskPageState extends State<TaskPage> {
                           Expanded(
                             child: TextField(
                               focusNode: _todoFocus,
+                              controller: TextEditingController()..text = "",
                               onSubmitted: (value) async {
                                 if (value != "") {
                                   //Check of task is null
@@ -227,6 +244,7 @@ class _TaskPageState extends State<TaskPage> {
                                     await _dbHelper.insertToDo(newToDo);
                                     print("Creating new ToDo");
                                     setState(() {});
+                                    _todoFocus.requestFocus();
                                   }
                                 }
                               },
