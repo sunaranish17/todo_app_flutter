@@ -90,6 +90,6 @@ class DatabaseHelper {
   Future<void> deleteTask(int id) async {
     Database _db = await database();
     await _db.rawDelete("DELETE FROM tasks WHERE id = '$id'");
-    await _db.rawDelete("DELETE FROM todo WHERE taksId = '$id'");
+    await _db.rawDelete("DELETE FROM todo WHERE taskId = '$id'");
   }
 }
